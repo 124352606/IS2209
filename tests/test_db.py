@@ -31,8 +31,7 @@ def _make_pool_mock(fetchall_return=None, fetchone_return=None):
     cur.__exit__ = MagicMock(return_value=False)
     if fetchall_return is not None:
         cur.fetchall.return_value = fetchall_return
-    if fetchone_return is not None:
-        cur.fetchone.return_value = fetchone_return
+    cur.fetchone.return_value = fetchone_return
 
     conn = MagicMock()
     conn.cursor.return_value = cur
