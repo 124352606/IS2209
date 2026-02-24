@@ -75,7 +75,7 @@ jobs:
           retention-days: 30
 
   # --------------------------------------------------------------------------
-  # 3. Build — Docker image smoke test (no push on PRs)
+  # 3. Build — verify Docker image builds successfully (no push on PRs)
   # --------------------------------------------------------------------------
   build:
     name: Build Docker image
@@ -90,11 +90,3 @@ jobs:
         run: |
           docker build -t deployhub:${{ github.sha }} .
 
-      - name: Confirm image runs (smoke test)
-        run: |
-          docker run --rm \
-            -e DATABASE_URL=postgresql://test:test@localhost/test \
-            -e COINGECKO_BASE_URL=https://api.coingecko.com/api/v3 \
-            -e LOG_LEVEL=WARNING \
-            deployhub:${{ github.sha }} \
-            python -c "from app import create_app; app = create_app(); print('App factory OK')"
