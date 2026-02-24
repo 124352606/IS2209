@@ -63,6 +63,9 @@ def init_db(app) -> None:
     ``RuntimeError`` is raised so the process exits and Docker can restart
     the container rather than running in a broken state.
 
+    Supabase (and most managed Postgres providers) require SSL; if
+    ``sslmode=`` is absent from the URL it is appended automatically.
+
     Parameters
     ----------
     app:
@@ -74,6 +77,12 @@ def init_db(app) -> None:
     url = app.config.get("DATABASE_URL") or os.environ.get("DATABASE_URL", "")
     if not url:
         raise RuntimeError("DATABASE_URL is not set")
+
+    # Supabase requires SSL; inject sslmode=require when the caller hasn't
+    # already specified an sslmode.
+    if "sslmode=" not in url:
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}sslmode=require"
 
     max_attempts = 10
     delay_seconds = 2
@@ -98,7 +107,7 @@ def init_db(app) -> None:
                 extra={"attempt": attempt},
             )
             break
-        except psycopg2.OperationalError as exc:
+        except Exception as exc:
             logger.warning(
                 "db_connect_failed",
                 extra={
@@ -106,19 +115,30 @@ def init_db(app) -> None:
                     "max_attempts": max_attempts,
                     "error": str(exc),
                 },
+                exc_info=True,
             )
             if attempt == max_attempts:
                 raise RuntimeError(
-                    f"Could not connect to the database after {max_attempts} attempts"
+                    f"Could not connect to the database after {max_attempts} attempts: {exc}"
                 ) from exc
             time.sleep(delay_seconds)
 
-    # Create schema tables idempotently.
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(_CREATE_WATCHLIST_SQL)
-            cur.execute(_CREATE_SNAPSHOTS_SQL)
-    logger.info("db_schema_ready")
+    # Create schema tables idempotently.  The pool is already set above so a
+    # schema error must not prevent the app from starting — log it clearly and
+    # let the app run (queries against missing tables will fail with a clear
+    # Postgres error rather than a silent "pool not initialised" message).
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(_CREATE_WATCHLIST_SQL)
+                cur.execute(_CREATE_SNAPSHOTS_SQL)
+        logger.info("db_schema_ready")
+    except Exception as exc:
+        logger.error(
+            "db_schema_failed",
+            extra={"error": str(exc)},
+            exc_info=True,
+        )
 
 
 # ---------------------------------------------------------------------------
