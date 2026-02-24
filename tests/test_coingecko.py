@@ -12,7 +12,6 @@ import requests
 
 from app.coingecko import CoinGeckoUnavailableError, fetch_prices, ping
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

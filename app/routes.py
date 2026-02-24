@@ -12,7 +12,6 @@ Successful JSON responses always include ``request_id`` at the top level.
 """
 
 import logging
-import os
 import sys
 from datetime import datetime, timezone
 
@@ -23,7 +22,7 @@ import app.db as db
 from app.coingecko import CoinGeckoUnavailableError
 
 try:
-    import psycopg2
+    import psycopg2  #noqa: F401
     _PSYCOPG2_AVAILABLE = True
 except ImportError:  # pragma: no cover
     _PSYCOPG2_AVAILABLE = False

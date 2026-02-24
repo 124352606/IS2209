@@ -6,12 +6,8 @@ connections are made.
 """
 
 from datetime import datetime, timezone
-from unittest.mock import MagicMock
-
-import pytest
 
 from app.coingecko import CoinGeckoUnavailableError
-
 
 # ---------------------------------------------------------------------------
 # /health

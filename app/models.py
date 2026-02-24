@@ -6,7 +6,7 @@ the database layer, the CoinGecko wrapper, and the route handlers.
 They carry no ORM logic; persistence is handled exclusively in ``app.db``.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
