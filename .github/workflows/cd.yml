@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# DeployHub — Continuous Deployment Pipeline
+# ---------------------------------------------------------------------------
+# Triggers only on pushes to the main branch.
+# Jobs: publish (push image to ghcr.io) → deploy (trigger Render webhook).
+# ---------------------------------------------------------------------------
+
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  # --------------------------------------------------------------------------
+  # 1. Publish — build and push image to GitHub Container Registry
+  # --------------------------------------------------------------------------
+  publish:
+    name: Publish image to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/deployhub
+          tags: |
+            type=sha,format=long
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/deployhub:latest
+            ghcr.io/${{ github.repository_owner }}/deployhub:${{ github.sha }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # --------------------------------------------------------------------------
+  # 2. Deploy — trigger Render deploy webhook
+  # --------------------------------------------------------------------------
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: publish
+
+    steps:
+      - name: Trigger Render deploy webhook
+        run: |
+          echo "Triggering Render deployment…"
+          curl --fail -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          echo ""
+          echo "Deployment triggered successfully."
+          echo "Deployment URL: https://deployhub.onrender.com"

@@ -1,0 +1,63 @@
+# ---------------------------------------------------------------------------
+# DeployHub — .gitignore
+# ---------------------------------------------------------------------------
+
+# ----- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+wheels/
+*.whl
+.installed.cfg
+MANIFEST
+pip-wheel-metadata/
+
+# ----- Virtual environments -------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.env
+!.env.example
+
+# ----- Testing & coverage ---------------------------------------------------
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+nosetests.xml
+test-results/
+
+# ----- Ruff -----------------------------------------------------------------
+.ruff_cache/
+
+# ----- IDE / editor ---------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# ----- Docker ---------------------------------------------------------------
+*.dockerignore
+
+# ----- Logs -----------------------------------------------------------------
+*.log
+logs/
+
+# ----- Local config ---------------------------------------------------------
+instance/

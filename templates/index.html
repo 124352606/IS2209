@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}DeployHub — Dashboard{% endblock %}
+
+{% block content %}
+<h2 style="font-size:1.8rem; margin-bottom:1.5rem;">
+  Crypto Watchlist
+  <span class="badge {% if source == 'live' %}badge-ok{% elif source == 'cached' %}badge-warn{% else %}badge-err{% endif %}"
+        style="font-size:0.7rem; vertical-align:middle;">
+    {{ source | upper }}
+  </span>
+</h2>
+
+{% if error %}
+<div class="alert alert-warn">&#9888;&nbsp; {{ error }}</div>
+{% endif %}
+
+<!-- Add ticker form -->
+<div class="card">
+  <h2>Add to Watchlist</h2>
+  <form method="POST" action="/watchlist"
+        onsubmit="addTicker(event)"
+        style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+    <input type="text" id="new-ticker" name="ticker"
+           placeholder="e.g. bitcoin, ethereum"
+           style="flex:1; min-width:200px;" />
+    <button type="submit" class="btn btn-primary">Add Ticker</button>
+  </form>
+  <p class="meta" style="margin-top:0.5rem;">
+    Use the CoinGecko coin ID (lowercase). Examples: bitcoin, ethereum, solana, cardano.
+  </p>
+  <div id="add-result" style="margin-top:0.75rem;"></div>
+</div>
+
+<!-- Watchlist table -->
+<div class="card">
+  <h2>Current Watchlist</h2>
+  {% if watchlist %}
+  <table>
+    <thead>
+      <tr>
+        <th>Coin</th>
+        <th>Price (USD)</th>
+        <th>24 h Change</th>
+        <th>Added</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for coin in watchlist %}
+      <tr id="row-{{ coin.ticker }}">
+        <td><strong>{{ coin.ticker }}</strong></td>
+        <td>
+          {% if coin.price_usd is not none %}
+            ${{ "%.2f"|format(coin.price_usd) }}
+          {% else %}
+            <span class="neutral">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if coin.change_24h is not none %}
+            {% if coin.change_24h > 0 %}
+              <span class="positive">&#9650; {{ "%.2f"|format(coin.change_24h) }}%</span>
+            {% elif coin.change_24h < 0 %}
+              <span class="negative">&#9660; {{ "%.2f"|format(coin.change_24h | abs) }}%</span>
+            {% else %}
+              <span class="neutral">0.00%</span>
+            {% endif %}
+          {% else %}
+            <span class="neutral">—</span>
+          {% endif %}
+        </td>
+        <td class="meta">{{ coin.added_at or "—" }}</td>
+        <td>
+          <button class="btn btn-danger"
+                  onclick="deleteTicker('{{ coin.ticker }}')"
+                  style="padding:0.3rem 0.7rem; font-size:0.8rem;">
+            Remove
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="neutral" style="padding:1rem 0;">
+    Your watchlist is empty. Add a coin above to get started.
+  </p>
+  {% endif %}
+</div>
+
+<script>
+  async function addTicker(event) {
+    event.preventDefault();
+    const ticker = document.getElementById("new-ticker").value.trim().toLowerCase();
+    const resultEl = document.getElementById("add-result");
+    if (!ticker) { resultEl.innerHTML = '<span class="alert alert-err">Please enter a ticker.</span>'; return; }
+    try {
+      const resp = await fetch("/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker }),
+      });
+      if (resp.status === 201) {
+        resultEl.innerHTML = `<span style="color:#4ade80;">&#10003; Added <strong>${ticker}</strong>. Refreshing…</span>`;
+        setTimeout(() => location.reload(), 800);
+      } else {
+        const data = await resp.json();
+        resultEl.innerHTML = `<div class="alert alert-warn">&#9888; ${data.error || "Error adding ticker."}</div>`;
+      }
+    } catch (e) {
+      resultEl.innerHTML = '<div class="alert alert-err">Network error. Please try again.</div>';
+    }
+  }
+
+  async function deleteTicker(ticker) {
+    if (!confirm(`Remove ${ticker} from your watchlist?`)) return;
+    try {
+      const resp = await fetch(`/watchlist/${ticker}`, { method: "DELETE" });
+      if (resp.status === 204) {
+        const row = document.getElementById(`row-${ticker}`);
+        if (row) row.remove();
+      } else {
+        const data = await resp.json().catch(() => ({}));
+        alert(data.error || "Could not remove ticker.");
+      }
+    } catch (e) {
+      alert("Network error. Please try again.");
+    }
+  }
+</script>
+{% endblock %}

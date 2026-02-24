@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}DeployHub — System Status{% endblock %}
+
+{% block content %}
+<h2 style="font-size:1.8rem; margin-bottom:1.5rem;">System Status</h2>
+
+<!-- Dependency health -->
+<div class="card">
+  <h2>Dependencies</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Status</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>PostgreSQL Database</strong></td>
+        <td>
+          <span class="badge {% if db_status == 'ok' %}badge-ok{% else %}badge-err{% endif %}">
+            {{ db_status | upper }}
+          </span>
+        </td>
+        <td class="meta">{{ "Connected and responding" if db_status == "ok" else "Connection failed" }}</td>
+      </tr>
+      <tr>
+        <td><strong>CoinGecko API</strong></td>
+        <td>
+          <span class="badge {% if last_fetch != 'Never' %}badge-ok{% else %}badge-warn{% endif %}">
+            {% if last_fetch != 'Never' %}ACTIVE{% else %}NO DATA{% endif %}
+          </span>
+        </td>
+        <td class="meta">Last successful fetch: {{ last_fetch }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Application info -->
+<div class="card">
+  <h2>Application Info</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Uptime</td>
+        <td><code>{{ uptime }}</code></td>
+      </tr>
+      <tr>
+        <td>Python Version</td>
+        <td><code>{{ python_version }}</code></td>
+      </tr>
+      <tr>
+        <td>Request ID</td>
+        <td><code>{{ request_id }}</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Quick links -->
+<div class="card">
+  <h2>Quick Links</h2>
+  <p style="margin-bottom:0.75rem; color:#94a3b8; font-size:0.9rem;">
+    API endpoints available from this service:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge-ok">GET</span></td><td><a href="/health" style="color:#38bdf8;">/health</a></td><td>JSON health check</td></tr>
+      <tr><td><span class="badge badge-ok">GET</span></td><td><a href="/watchlist" style="color:#38bdf8;">/watchlist</a></td><td>Live watchlist prices</td></tr>
+      <tr><td><span class="badge badge-ok">GET</span></td><td><code>/prices/&lt;ticker&gt;</code></td><td>Single coin live price</td></tr>
+      <tr><td><span class="badge badge-ok">GET</span></td><td><code>/history/&lt;ticker&gt;</code></td><td>Price history (last 100)</td></tr>
+      <tr><td><span class="badge" style="background:#1e3a5f;color:#93c5fd;">POST</span></td><td><code>/watchlist</code></td><td>Add ticker to watchlist</td></tr>
+      <tr><td><span class="badge badge-err">DEL</span></td><td><code>/watchlist/&lt;ticker&gt;</code></td><td>Remove ticker</td></tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
