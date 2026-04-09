@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CryptoTrack</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #0a0e1a;
+            --card:     #111827;
+            --border:   #1f2937;
+            --accent:   #00ff88;
+            --text:     #f9fafb;
+            --muted:    #6b7280;
+            --danger:   #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ─────────────────────────────────────────── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            height: 64px;
+            background: rgba(17, 24, 39, 0.85);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .navbar-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .navbar-link:hover { color: var(--accent); }
+
+        .navbar-link.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .navbar-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+
+        /* ── MAIN LAYOUT ─────────────────────────────────────── */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* ── HERO STATS BAR ──────────────────────────────────── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+        }
+
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* ── SECTION HEADING ─────────────────────────────────── */
+        .section-heading {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── PRICE GRID ──────────────────────────────────────── */
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .price-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .price-card:hover {
+            border-color: rgba(0, 255, 136, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .price-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .coin-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            text-transform: capitalize;
+        }
+
+        .coin-symbol {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .change-badge {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .change-badge.up {
+            background: rgba(0, 255, 136, 0.12);
+            color: var(--accent);
+        }
+
+        .change-badge.down {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+        }
+
+        .coin-price {
+            font-family: 'Space Mono', monospace;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        .sparkline-wrap {
+            height: 52px;
+            position: relative;
+        }
+
+        .add-watchlist-btn {
+            width: 100%;
+            padding: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .add-watchlist-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 14px;
+            padding: 16px 0;
+        }
+
+        /* ── WATCHLIST TABLE ─────────────────────────────────── */
+        .watchlist-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 48px;
+        }
+
+        .watchlist-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .watchlist-table thead th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        .watchlist-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .watchlist-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .watchlist-table tbody tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .watchlist-table td {
+            padding: 14px 20px;
+            font-size: 14px;
+        }
+
+        .watchlist-table .td-coin-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .watchlist-table .td-coin-id {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .watchlist-table .td-date {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .remove-btn {
+            padding: 5px 12px;
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 6px;
+            color: var(--danger);
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .watchlist-empty {
+            padding: 32px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ── ADD TO WATCHLIST FORM ───────────────────────────── */
+        .add-form {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 480px;
+            margin-bottom: 48px;
+        }
+
+        .add-form-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .add-form input {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-form input:focus {
+            border-color: var(--accent);
+        }
+
+        .add-form input::placeholder {
+            color: var(--muted);
+        }
+
+        .add-form button[type="submit"] {
+            padding: 10px 20px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e1a;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .add-form button[type="submit"]:hover {
+            opacity: 0.85;
+        }
+
+        #form-message {
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        /* ── FOOTER ──────────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* ── RESPONSIVE ──────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .stats-bar { grid-template-columns: 1fr; }
+            .navbar { padding: 0 16px; }
+            .container { padding: 20px 16px 48px; }
+            .input-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<nav class="navbar">
+    <a class="navbar-brand" href="/">CryptoTrack</a>
+    <div class="navbar-nav">
+        <a class="navbar-link active" href="/">Home</a>
+        <a class="navbar-link" href="/convert">Convert</a>
+        <a class="navbar-link" href="/about">About</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- ── HERO STATS BAR ───────────────────────────────────────── -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <span class="stat-label">Coins Tracked</span>
+            {% if prices is mapping and prices.error %}
+                <span class="stat-value">—</span>
+            {% else %}
+                <span class="stat-value">{{ prices | length }}</span>
+            {% endif %}
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Market Status</span>
+            <span class="status-badge">
+                <span class="live-dot"></span>
+                Live
+            </span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Last Updated</span>
+            <span class="stat-value" id="last-updated" style="font-size:16px; margin-top:4px;">—</span>
+        </div>
+    </div>
+
+    <!-- ── PRICE GRID ────────────────────────────────────────────── -->
+    <p class="section-heading">Live Prices</p>
+
+    {% if prices is mapping and prices.error %}
+        <p class="error-msg">CoinGecko unavailable: {{ prices.error }}</p>
+    {% else %}
+        <div class="price-grid">
+            {% for item in prices %}
+            <div class="price-card">
+                <div class="price-card-header">
+                    <div>
+                        <div class="coin-name">{{ item.coin_id | replace('-', ' ') | title }}</div>
+                        <div class="coin-symbol">{{ item.coin_id }}</div>
+                    </div>
+                    <span class="change-badge up" id="change-{{ loop.index }}">—</span>
+                </div>
+
+                <div class="coin-price">${{ "{:,.2f}".format(item.price_usd) }}</div>
+
+                <div class="sparkline-wrap">
+                    <canvas id="spark-{{ loop.index }}"></canvas>
+                </div>
+
+                <button class="add-watchlist-btn"
+                        onclick="prefillForm('{{ item.coin_id }}', '{{ item.coin_id | replace('-', ' ') | title }}')">
+                    + Add to Watchlist
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- ── WATCHLIST ─────────────────────────────────────────────── -->
+    <p class="section-heading">Watchlist</p>
+
+    <div class="watchlist-wrap">
+        {% if watchlist %}
+        <table class="watchlist-table">
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th>ID</th>
+                    <th>Date Added</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in watchlist %}
+                <tr>
+                    <td class="td-coin-name">{{ item.coin_name }}</td>
+                    <td class="td-coin-id">{{ item.coin_id }}</td>
+                    <td class="td-date">{{ item.added_at[:10] if item.added_at else '—' }}</td>
+                    <td><button class="remove-btn">Remove</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="watchlist-empty">No coins in your watchlist yet.</div>
+        {% endif %}
+    </div>
+
+    <!-- ── ADD TO WATCHLIST ──────────────────────────────────────── -->
+    <p class="section-heading">Add to Watchlist</p>
+
+    <div class="add-form">
+        <div class="add-form-title">Track a new coin</div>
+        <form id="watchlist-form">
+            <div class="input-row">
+                <input type="text" id="coin-id"   placeholder="Coin ID  (e.g. bitcoin)" required />
+                <input type="text" id="coin-name" placeholder="Name  (e.g. Bitcoin)"   required />
+                <button type="submit">Add</button>
+            </div>
+        </form>
+        <p id="form-message"></p>
+    </div>
+
+</div><!-- /container -->
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+    <span>CryptoTrack &copy; {{ 2025 }}</span>
+    <div class="footer-links">
+        <a href="/health">/health</a>
+        <a href="/status">/status</a>
+        <a href="/prices">/prices</a>
+    </div>
+</footer>
+
+
+<script>
+    // ── Last updated timestamp ────────────────────────────────────
+    document.getElementById("last-updated").textContent =
+        new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+    // ── Sparkline charts (placeholder data) ──────────────────────
+    function randomSparkData() {
+        const base = Math.random() * 1000 + 500;
+        return Array.from({length: 7}, (_, i) =>
+            base + (Math.random() - 0.48) * base * 0.06 * i
+        );
+    }
+
+    document.querySelectorAll('[id^="spark-"]').forEach(canvas => {
+        const idx    = canvas.id.split('-')[1];
+        const data   = randomSparkData();
+        const first  = data[0];
+        const last   = data[data.length - 1];
+        const isUp   = last >= first;
+        const color  = isUp ? '#00ff88' : '#ef4444';
+
+        // Update change badge
+        const changePct = (((last - first) / first) * 100).toFixed(2);
+        const badge = document.getElementById('change-' + idx);
+        if (badge) {
+            badge.textContent = (isUp ? '▲ ' : '▼ ') + Math.abs(changePct) + '%';
+            badge.classList.toggle('up',   isUp);
+            badge.classList.toggle('down', !isUp);
+        }
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: ['7d','6d','5d','4d','3d','2d','1d'],
+                datasets: [{
+                    data: data,
+                    borderColor: color,
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: true,
+                    backgroundColor: isUp
+                        ? 'rgba(0,255,136,0.07)'
+                        : 'rgba(239,68,68,0.07)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                animation: false
+            }
+        });
+    });
+
+    // ── Prefill form from card button ─────────────────────────────
+    function prefillForm(coinId, coinName) {
+        document.getElementById('coin-id').value   = coinId;
+        document.getElementById('coin-name').value = coinName;
+        document.getElementById('watchlist-form')
+            .scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+
+    // ── Watchlist POST ────────────────────────────────────────────
+    document.getElementById("watchlist-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const coinId   = document.getElementById("coin-id").value.trim();
+        const coinName = document.getElementById("coin-name").value.trim();
+        const msg      = document.getElementById("form-message");
+
+        fetch("/watchlist", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({coin_id: coinId, coin_name: coinName})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === "added") {
+                msg.style.color = "#00ff88";
+                msg.textContent = coinName + " added to watchlist. Reload to see it.";
+                document.getElementById("watchlist-form").reset();
+            } else {
+                msg.style.color = "#ef4444";
+                msg.textContent = "Error: " + (data.error || "Unknown error");
+            }
+        })
+        .catch(() => {
+            msg.style.color = "#ef4444";
+            msg.textContent = "Request failed.";
+        });
+    });
+</script>
+
+</body>
+</html>
