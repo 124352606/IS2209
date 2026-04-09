@@ -1,0 +1,6 @@
+flask
+psycopg[binary]
+requests
+python-dotenv
+pytest
+ruff
