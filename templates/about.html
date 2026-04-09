@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — CryptoTrack</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:     #0a0e1a;
+            --card:   #111827;
+            --border: #1f2937;
+            --accent: #00ff88;
+            --text:   #f9fafb;
+            --muted:  #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            height: 64px;
+            background: rgba(17, 24, 39, 0.85);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .navbar-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .navbar-link:hover { color: var(--accent); }
+
+        .navbar-link.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .page-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* SECTION HEADING */
+        .section-heading {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* TECH STACK */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.06);
+        }
+
+        /* TEAM GRID */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .team-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 16px;
+        }
+
+        .team-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .team-role {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--accent); }
+
+        @media (max-width: 640px) {
+            .navbar { padding: 0 16px; }
+            .container { padding: 28px 16px 48px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" href="/">CryptoTrack</a>
+    <div class="navbar-nav">
+        <a class="navbar-link" href="/">Home</a>
+        <a class="navbar-link" href="/convert">Convert</a>
+        <a class="navbar-link active" href="/about">About</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div>
+        <p class="page-title">About</p>
+        <p class="page-subtitle">CryptoTrack — built for IS2209.</p>
+    </div>
+
+    <!-- WHAT IT DOES -->
+    <div>
+        <p class="section-heading">What it does</p>
+        <div class="card">
+            <p>CryptoTrack is a live cryptocurrency price tracker. It pulls real-time prices from the CoinGecko API for Bitcoin, Ethereum, Solana, Cardano, and Dogecoin, and displays them on a live dashboard. Users can add coins to a personal watchlist, which is persisted in a PostgreSQL database. A built-in currency converter lets you calculate the USD value of any coin amount instantly.</p>
+        </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div>
+        <p class="section-heading">Tech stack</p>
+        <div class="card">
+            <div class="tag-list">
+                <span class="tag">Python</span>
+                <span class="tag">Flask</span>
+                <span class="tag">CoinGecko API</span>
+                <span class="tag">Supabase PostgreSQL</span>
+                <span class="tag">Docker</span>
+                <span class="tag">GitHub Actions</span>
+                <span class="tag">Render</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEAM -->
+    <div>
+        <p class="section-heading">Team</p>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-name">Charlie</div>
+                <div class="team-role">DevOps</div>
+            </div>
+            <div class="team-card">
+                <div class="team-name">Danny</div>
+                <div class="team-role">Backend Developer</div>
+            </div>
+            <div class="team-card">
+                <div class="team-name">Colm</div>
+                <div class="team-role">Database Engineer</div>
+            </div>
+            <div class="team-card">
+                <div class="team-name">Ryan</div>
+                <div class="team-role">Frontend Developer</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <span>CryptoTrack &copy; 2025</span>
+    <div class="footer-links">
+        <a href="/health">/health</a>
+        <a href="/status">/status</a>
+        <a href="/prices">/prices</a>
+    </div>
+</footer>
+
+</body>
+</html>

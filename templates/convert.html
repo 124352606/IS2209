@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Convert — CryptoTrack</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:     #0a0e1a;
+            --card:   #111827;
+            --border: #1f2937;
+            --accent: #00ff88;
+            --text:   #f9fafb;
+            --muted:  #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            height: 64px;
+            background: rgba(17, 24, 39, 0.85);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .navbar-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .navbar-link:hover { color: var(--accent); }
+
+        .navbar-link.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+
+        .page-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 36px;
+        }
+
+        /* CARD */
+        .convert-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        select { cursor: pointer; }
+
+        select:focus, input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+
+        input[type="number"]::placeholder { color: var(--muted); }
+
+        /* Remove number input spinners */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* RESULT */
+        .result-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .result-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .result-placeholder {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* DIVIDER */
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--accent); }
+
+        @media (max-width: 640px) {
+            .navbar { padding: 0 16px; }
+            .container { padding: 28px 16px 48px; }
+            .result-value { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" href="/">CryptoTrack</a>
+    <div class="navbar-nav">
+        <a class="navbar-link" href="/">Home</a>
+        <a class="navbar-link active" href="/convert">Convert</a>
+        <a class="navbar-link" href="/about">About</a>
+    </div>
+</nav>
+
+<div class="container">
+    <p class="page-title">Convert</p>
+    <p class="page-subtitle">Enter an amount to see its current USD value.</p>
+
+    <div class="convert-card">
+        <div>
+            <label for="coin-select">Coin</label>
+            <select id="coin-select">
+                {% if prices is mapping and prices.error %}
+                    <option value="">Prices unavailable</option>
+                {% else %}
+                    {% for item in prices %}
+                    <option value="{{ item.price_usd }}">
+                        {{ item.coin_id | replace('-', ' ') | title }} ({{ item.coin_id }})
+                    </option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+
+        <div>
+            <label for="amount-input">Amount</label>
+            <input type="number" id="amount-input" placeholder="0.00" min="0" step="any" />
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="result-box" id="result-box">
+            <span class="result-placeholder">Enter an amount above</span>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <span>CryptoTrack &copy; 2025</span>
+    <div class="footer-links">
+        <a href="/health">/health</a>
+        <a href="/status">/status</a>
+        <a href="/prices">/prices</a>
+    </div>
+</footer>
+
+<script>
+    const select = document.getElementById("coin-select");
+    const input  = document.getElementById("amount-input");
+    const box    = document.getElementById("result-box");
+
+    function update() {
+        const amount = parseFloat(input.value);
+        const price  = parseFloat(select.value);
+
+        if (!input.value || isNaN(amount) || amount < 0 || isNaN(price)) {
+            box.innerHTML = '<span class="result-placeholder">Enter an amount above</span>';
+            return;
+        }
+
+        const usd = (amount * price).toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const coinLabel = select.options[select.selectedIndex].text;
+
+        box.innerHTML =
+            '<span class="result-value">' + usd + '</span>' +
+            '<span class="result-label">' + amount + ' ' + coinLabel.split(' (')[0] + ' at current price</span>';
+    }
+
+    select.addEventListener("change", update);
+    input.addEventListener("input", update);
+</script>
+
+</body>
+</html>
