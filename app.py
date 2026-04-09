@@ -143,6 +143,20 @@ def watchlist():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
+@app.route("/convert")
+def convert():
+    try:
+        prices = get_prices()
+        return render_template("convert.html", prices=prices)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/status")
 def status():
     try:
